@@ -2,7 +2,7 @@
 <project version="4">
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="Sibirix Blade" options="--add-exports com.fasterxml.aalto/com.intellij.openapi.util=ALL-UNNAMED --add-exports com.fasterxml.aalto/com.intellij.util=ALL-UNNAMED" />
+      <module name="Sibirix resolver" options="--add-exports com.fasterxml.aalto/com.intellij.openapi.util=ALL-UNNAMED --add-exports com.fasterxml.aalto/com.intellij.util=ALL-UNNAMED" />
     </option>
   </component>
 </project>

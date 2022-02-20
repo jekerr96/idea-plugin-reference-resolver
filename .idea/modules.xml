@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Sibirix Blade.iml" filepath="$PROJECT_DIR$/Sibirix Blade.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Sibirix resolver.iml" filepath="$PROJECT_DIR$/Sibirix resolver.iml" />
     </modules>
   </component>
 </project>
