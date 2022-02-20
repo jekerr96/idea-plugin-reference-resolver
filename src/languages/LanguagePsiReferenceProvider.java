@@ -25,8 +25,10 @@ public class LanguagePsiReferenceProvider extends PsiReferenceProvider {
 
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
         String langsDir = properties.getValue("sibirixLangDir", "/www/local/mvc/resources/lang/");
+        String suggestLang = properties.getValue("sibirixLangSuggestions", "ru");
 
         langsDir = langsDir.length() == 0 ? "/www/local/mvc/resources/lang/" : langsDir;
+        suggestLang = suggestLang.length() == 0 ? "ru" : suggestLang;
 
         if (!className.endsWith("StringLiteralExpressionImpl")) {
             return PsiReference.EMPTY_ARRAY;
@@ -50,7 +52,8 @@ public class LanguagePsiReferenceProvider extends PsiReferenceProvider {
                 List<PsiReference> refs = new ArrayList<>();
 
                 for (VirtualFile lang: langs) {
-                    refs.add(new LanguageReference(uri, psiElement, new TextRange(start, start + len), project, lang));
+                    Boolean showVariants = lang.getName().equals(suggestLang);
+                    refs.add(new LanguageReference(uri, psiElement, new TextRange(start, start + len), project, lang, showVariants));
                 }
 
                 return refs.toArray(PsiReference.EMPTY_ARRAY);
@@ -91,5 +94,11 @@ public class LanguagePsiReferenceProvider extends PsiReferenceProvider {
             }
         }
         return false;
+    }
+
+    protected void notify(Project project, String content) {
+        NotificationGroupManager.getInstance().getNotificationGroup("Custom Notification Group")
+                .createNotification(content, NotificationType.INFORMATION)
+                .notify(project);
     }
 }

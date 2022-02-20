@@ -28,13 +28,15 @@ public class LanguageReference implements PsiReference {
     Project project;
     TextRange textRange;
     VirtualFile dir;
+    Boolean showVariants;
 
-    public LanguageReference(String uri, PsiElement psiElement, TextRange textRange, Project project, VirtualFile dir) {
+    public LanguageReference(String uri, PsiElement psiElement, TextRange textRange, Project project, VirtualFile dir, Boolean showVariants) {
         this.uri = uri;
         this.psiElement = psiElement;
         this.textRange = textRange;
         this.project = project;
         this.dir = dir;
+        this.showVariants = showVariants;
     }
 
     @Override
@@ -84,13 +86,20 @@ public class LanguageReference implements PsiReference {
 
     @Override
     public Object[] getVariants() {
-        String curValue = psiElement.getOriginalElement().getText();
-
-        String[] curValueParts = curValue.split("\\.");
-        notify(curValue);
         List<LookupElement> variants = new ArrayList<>();
 
-        if (curValueParts.length <= 1) {
+        if (!this.showVariants) {
+            return variants.toArray();
+        }
+
+        String curValue = replaceQuote(psiElement.getOriginalElement().getText());
+        String[] curValueParts = curValue.split("\\.");
+
+        int curDeep = curValueParts.length;
+
+        if (curValue.endsWith(".")) curDeep++;
+
+        if (curDeep <= 1) {
             for (VirtualFile translateFile: dir.getChildren()) {
                 PsiFile psiFile = PsiManager.getInstance(project).findFile(translateFile);
 
@@ -105,8 +114,21 @@ public class LanguageReference implements PsiReference {
             return variants.toArray();
         }
 
+        VirtualFile translateFile = dir.findFileByRelativePath("/" + curValueParts[0] + ".php");
 
-        return variants.toArray();
+        if (translateFile == null) {
+            return variants.toArray();
+        }
+
+        PsiFile psiFile = PsiManager.getInstance(project).findFile(translateFile);
+
+        PsiElement rootArray = findByClassName("com.jetbrains.php.lang.psi.elements.impl.ArrayCreationExpressionImpl", psiFile);
+
+        if (rootArray == null) {
+            return variants.toArray();
+        }
+
+        return getVariantsFromArray(rootArray, psiFile.getName().replace(".php", ""), curDeep, 1).toArray();
     }
 
     protected PsiElement findRef() {
@@ -124,6 +146,71 @@ public class LanguageReference implements PsiReference {
         }
 
         return PsiManager.getInstance(project).findFile(translateFile);
+    }
+
+    protected PsiElement findByClassName(String className, PsiElement startElement) {
+        if (startElement.getClass().getName().equals(className)) return startElement;
+
+        PsiElement[] children = startElement.getChildren();
+
+        if (children.length == 0 && startElement.getNextSibling() != null) {
+            return findByClassName(className, startElement.getNextSibling());
+        }
+
+        for (PsiElement child: children) {
+            PsiElement childResult = findByClassName(className, child);
+
+            if (childResult != null) {
+                return childResult;
+            }
+        }
+
+        return null;
+    }
+
+    protected PsiElement[] findAllChildByClassName(String className, PsiElement parentElement) {
+        List<PsiElement> elements = new ArrayList<>();
+
+        for (PsiElement child: parentElement.getChildren()) {
+            if (child.getClass().getName().equals(className)) {
+                elements.add(child);
+            }
+        }
+
+        return elements.toArray(new PsiElement[elements.size()]);
+    }
+
+    protected List<LookupElement> getVariantsFromArray(PsiElement rootArray, String prevPath, int maxDeep, int curDeep) {
+        List<LookupElement> variants = new ArrayList<>();
+
+        if (curDeep >= maxDeep) return variants;
+
+        PsiElement[] arrayElements = findAllChildByClassName("com.jetbrains.php.lang.psi.elements.impl.ArrayHashElementImpl", rootArray);
+
+        for (PsiElement arrayElement: arrayElements) {
+            PsiElement elementName = arrayElement.getFirstChild();
+
+            if (elementName == null) continue;
+
+            PsiElement elementValue = arrayElement.getLastChild().getFirstChild();
+            Boolean isArray = elementValue.getClass().getName().equals("com.jetbrains.php.lang.psi.elements.impl.ArrayCreationExpressionImpl");
+
+            String path = prevPath + "." + replaceQuote(elementName.getText());
+
+            variants.add(LookupElementBuilder.create(path).withTypeText(isArray ? "Array" : replaceQuote(elementValue.getText())));
+
+            if (isArray) {
+                for (LookupElement lookupElement: getVariantsFromArray(elementValue, path, maxDeep, curDeep + 1)) {
+                    variants.add(lookupElement);
+                }
+            }
+        }
+
+        return variants;
+    }
+
+    protected String replaceQuote(String original) {
+        return original.replace("\"", "").replace("'", "");
     }
 
     protected void notify(String content) {

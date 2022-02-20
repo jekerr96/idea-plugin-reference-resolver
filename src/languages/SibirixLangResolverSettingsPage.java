@@ -15,6 +15,7 @@ public class SibirixLangResolverSettingsPage implements Configurable {
     Project project;
     private JBTextField langDir = new JBTextField();
     private JBTextField langFn = new JBTextField();
+    private JBTextField langSuggest = new JBTextField();
 
     public SibirixLangResolverSettingsPage(Project project) {
         this.project = project;
@@ -30,6 +31,7 @@ public class SibirixLangResolverSettingsPage implements Configurable {
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
         @Nullable String dir = properties.getValue("sibirixLangDir");
         @Nullable String langFnName = properties.getValue("sibirixLangFn");
+        @Nullable String langSuggestName = properties.getValue("sibirixLangSuggestions");
 
         if (dir != null) {
             langDir.setText(properties.getValue("sibirixLangDir"));
@@ -39,12 +41,18 @@ public class SibirixLangResolverSettingsPage implements Configurable {
             langFn.setText(properties.getValue("sibirixLangFn"));
         }
 
+        if (langSuggestName != null) {
+            langSuggest.setText(properties.getValue("sibirixLangSuggestions"));
+        }
+
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.add(new JBLabel("Путь до языков"));
         panel.add(langDir);
         panel.add(new JBLabel("Функция вызова переводов"));
         panel.add(langFn);
+        panel.add(new JBLabel("Язык для подсказок"));
+        panel.add(langSuggest);
 
         return panel;
     }
@@ -59,5 +67,6 @@ public class SibirixLangResolverSettingsPage implements Configurable {
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
         properties.setValue("sibirixLangDir", langDir.getText());
         properties.setValue("sibirixLangFn", langFn.getText());
+        properties.setValue("sibirixLangSuggestions", langSuggest.getText());
     }
 }
