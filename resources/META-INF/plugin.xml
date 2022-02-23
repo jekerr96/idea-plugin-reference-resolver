@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.sibirix.resolver</id>
   <name>Sibirix resolver</name>
-  <version>2.1</version>
+  <version>2.2</version>
   <vendor email="evgenij.astanin@sibirix.ru" url="https://www.sibirix.com">Sibirix</vendor>
 
   <description><![CDATA[
@@ -24,10 +24,13 @@
     <!-- Add your extensions here -->
     <psi.referenceContributor implementation="MyPsiReferenceContributor"/>
     <psi.referenceContributor implementation="languages.LanguagePsiReferenceContributor"/>
+    <psi.referenceContributor implementation="symbol.SymbolPsiReferenceContributor"/>
     <projectConfigurable parentId="tools" instance="SibirixBladeResolverSettingsPage" id="sibirix.blade.config"
                          displayName="Sibirix blade settings"/>
     <projectConfigurable parentId="tools" instance="languages.SibirixLangResolverSettingsPage" id="sibirix.lang.config"
                          displayName="Sibirix lang settings"/>
+    <projectConfigurable parentId="tools" instance="symbol.SibirixSymbolResolverSettingsPage" id="sibirix.symbol.config"
+                         displayName="Sibirix symbol settings"/>
     <notificationGroup id="Custom Notification Group" displayType="BALLOON" key="notification.group.name"/>
   </extensions>
 
