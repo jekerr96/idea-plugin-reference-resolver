@@ -18,7 +18,7 @@ import java.util.List;
 
 public class LanguagePsiReferenceProvider extends PsiReferenceProvider {
     @Override
-    public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext processingContext) {
+    public PsiReference[] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext processingContext) {
         Project project = psiElement.getProject();
         Class elementClass = psiElement.getClass();
         String className = elementClass.getName();

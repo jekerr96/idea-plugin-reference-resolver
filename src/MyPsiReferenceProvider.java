@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
 
 public class MyPsiReferenceProvider extends PsiReferenceProvider {
     @Override
-    public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext processingContext) {
+    public PsiReference[] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext processingContext) {
         Project project = psiElement.getProject();
         Class elementClass = psiElement.getClass();
         String className = elementClass.getName();
